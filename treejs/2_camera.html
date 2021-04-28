@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <script src="three.min.js"> </script> 
+
+    <script>
+        var scene = new THREE.Scene();
+        //scene.background = new THREE.Color(0x008800);
+        
+        var camera_1 = new THREE.PerspectiveCamera(
+            75, // angulo
+            window.innerWidth/window.innerHeight, // aspect, es lo que ve la camara
+            0.1, // near
+            2000 // far
+        );
+
+        var camera_2 = new THREE.OrthographicCamera(
+            5,
+            -5,
+            5,
+            -5,
+            3, // near
+            10 // far
+        );
+
+        var camera = camera_1;
+        camera.position.z = -2;
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        var geometry = new THREE.BoxGeometry();
+        var material = new THREE.MeshBasicMaterial( {color:0x0000ff} );
+        //var material = new THREE.MeshBasicMaterial( {color:0x780000, wireframe: true} );
+        var cube = new THREE.Mesh( geometry, material );
+        cube.position.z = -5;
+        scene.add(cube);
+        
+        renderer.render( scene, camera );   
+
+        var i = 0;
+        var animate = function(){
+            requestAnimationFrame(animate);
+            
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;           
+
+            renderer.render( scene, camera );
+
+        }
+
+        animate();
+    </script>    
+
+</body>
+</html>
