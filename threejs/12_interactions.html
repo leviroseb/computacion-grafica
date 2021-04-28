@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body> 
+
+    <script type='module'>
+        import * as THREE from './jsm/three.module.js';
+        import { GUI } from './jsm/dat.gui.module.js';
+        import {OrbitControls} from './jsm/OrbitControls.js';
+        import {Interaction} from './jsm/three.interaction.module.js';
+
+        // camera //////////////////////////////////////////////////
+        var aspect = window.innerWidth/window.innerHeight;
+        var camera = new THREE.PerspectiveCamera(75, aspect);
+        camera.position.set(0, 10, 20);
+        
+        // scene //////////////////////////////////////////////////
+        var scene = new THREE.Scene();
+        scene.backgroundColor = new THREE.Color(0xffffff);
+               
+        // mesh //////////////////////////////////////////////////       
+        const cube_size = 4;      
+        var geometry_cube = new THREE.BoxGeometry(cube_size, cube_size, cube_size);        
+        var material_1 = new THREE.MeshPhongMaterial( {color: 0xff0000 } );
+        var cube = new THREE.Mesh( geometry_cube, material_1 );
+        cube.position.set(0, cube_size / 2, 0);
+        scene.add(cube); 
+
+        const geometry_plane = new THREE.PlaneGeometry( 50, 50, 32 );
+        const texture_2 = new THREE.TextureLoader().load( 'textures/texture_2.jpg' );
+        const material_3 = new THREE.MeshPhongMaterial( {map: texture_2} );
+        const plane = new THREE.Mesh( geometry_plane, material_3 );
+        plane.rotation.x = Math.PI * -.5;
+        scene.add( plane );
+       
+        
+        ////////////////////////////////////////////////////////////
+        // HemisphereLight light ///////////////////////////////////
+        const skyColor = 0xB1E1FF;  // light blue
+        const groundColor = 0x59340B;  // black
+        const hemisphere_light = new THREE.HemisphereLight(skyColor, groundColor, 0.5);
+        scene.add(hemisphere_light);        
+        ////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////
+        // DirectionalLight  ///////////////////////////////////////
+        const color = 0xFFFFFF;
+        const intensity = 0.5;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(5, 10, 10);
+        light.target.position.set(0, 0, 0);
+        scene.add(light);
+        scene.add(light.target);         
+        //////////////////////////////////////////////////////////// 
+        ////////////////////////////////////////////////////////////
+
+        
+
+        
+        // renderer //////////////////////////////////////////////////
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        renderer.render( scene, camera );
+        //renderer.shadowMapEnable = true;
+        //renderer.shadowMapEnable = true;
+        
+        // OrbitControls /////////////////////////////////////////////
+        var controls = new OrbitControls( camera, renderer.domElement );
+        
+        // Interactions /////////////////////////////////////////////
+        const interaction = new Interaction(renderer, scene, camera);
+        cube.cursor = 'pointer';
+        cube.on('click', function(ev) { 
+            console.log("click");
+            cube.material.color.setHex( 0xffff00 );
+        });
+        cube.on('touchstart', function(ev) {});
+        cube.on('touchcancel', function(ev) {});
+        cube.on('touchmove', function(ev) {});
+        cube.on('touchend', function(ev) {});
+        cube.on('mousedown', function(ev) {});
+        cube.on('mouseout', function(ev) { 
+            console.log("mouseout") 
+            cube.material.color.setHex( 0xff0000 );
+        });
+        cube.on('mouseover', function(ev) { 
+            console.log("mouseover") 
+            cube.material.color.setHex( 0xffffff );
+        });
+        cube.on('mousemove', function(ev) {});
+        cube.on('mouseup', function(ev) {});
+                
+        // animation //////////////////////////////////////////////////
+        var animate = function(){
+            requestAnimationFrame(animate);
+            renderer.render( scene, camera );
+        }
+        animate();
+
+        // redimensioar  /////////////////////////////////////////////
+        window.addEventListener('resize', redimensionar);
+        function redimensionar(){
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.render( scene, camera );
+        }
+    </script>    
+
+</body>
+</html>

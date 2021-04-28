@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <!--<script src="three.min.js"> </script> 
+    <script src="OrbitControls.js"> </script> 
+    <script src="dat.gui.min.js"></script>
+    -->
+    <script type='module'>     
+        import * as THREE from './jsm/three.module.js';
+        import { GUI } from './jsm/dat.gui.module.js';
+        import {OrbitControls} from './jsm/OrbitControls.js';
+
+        // utilizado cuando queremos poner la lampara dentro de la scene como un mesh
+        function makeXYZGUI(gui, vector3, name, onChangeFn) {
+            const folder = gui.addFolder(name);
+            folder.add(vector3, 'x', -20, 20).onChange(onChangeFn);
+            folder.add(vector3, 'y', 0, 20).onChange(onChangeFn);
+            folder.add(vector3, 'z', -20, 20).onChange(onChangeFn);
+            folder.open();
+        }      
+
+        // utilizado por GUI para modificar los parametros de light en la scena
+        class ColorGUIHelper {
+            constructor(object, prop) {
+                this.object = object;
+                this.prop = prop;
+            }
+            get value() {
+                return `#${this.object[this.prop].getHexString()}`;
+            }
+            set value(hexString) {
+                this.object[this.prop].set(hexString);
+            }
+        }
+
+        // para convertir de radiaanes a grados
+        class DegRadHelper {
+            constructor(obj, prop) {
+            this.obj = obj;
+            this.prop = prop;
+            }
+            get value() {
+                return THREE.MathUtils.radToDeg(this.obj[this.prop]);
+            }
+            set value(v) {
+                this.obj[this.prop] = THREE.MathUtils.degToRad(v);
+            }
+        }
+
+        // camera //////////////////////////////////////////////////
+        const fov = 45;
+        const aspect = window.innerWidth/window.innerHeight;  // the canvas default
+        const near = 0.1;
+        const far = 100;
+        const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+        camera.position.set(0, 10, 20);
+        
+        // scene //////////////////////////////////////////////////
+        var scene = new THREE.Scene();
+        scene.backgroundColor = new THREE.Color(0xffffff);
+               
+        // mesh //////////////////////////////////////////////////       
+        const cube_size = 4;      
+        var geometry_cube = new THREE.BoxGeometry(cube_size, cube_size, cube_size);
+        const texture_1 = new THREE.TextureLoader().load( 'textures/texture_1.jpg' );
+        var material_1 = new THREE.MeshPhongMaterial( {map: texture_1 } );
+        var cube = new THREE.Mesh( geometry_cube, material_1 );
+        cube.position.set(0, cube_size / 2, 0);
+        cube.castShadow = true;
+        scene.add(cube); 
+
+        const geometry_plane = new THREE.PlaneGeometry( 50, 50, 32 );
+        const texture_2 = new THREE.TextureLoader().load( 'textures/texture_2.jpg' );
+        const material_3 = new THREE.MeshPhongMaterial( {map: texture_2} );
+        const plane = new THREE.Mesh( geometry_plane, material_3 );
+        plane.rotation.x = Math.PI * -.5;
+        plane.receiveShadow = true;
+        scene.add( plane );
+       
+        
+        ////////////////////////////////////////////////////////////
+        // HemisphereLight light ///////////////////////////////////
+        const skyColor = 0xB1E1FF;  // light blue
+        const groundColor = 0x59340B;  // black
+        const hemisphere_light = new THREE.HemisphereLight(skyColor, groundColor, 0.5);
+        scene.add(hemisphere_light);        
+        ////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////
+        // DirectionalLight  ///////////////////////////////////////
+        const color = 0xFFFFFF;
+        const intensity = 1;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.castShadow = true;
+        light.position.set(0, 10, 0);
+        light.target.position.set(-4, 0, -4);
+
+        light.shadow.mapSize.width = 1024; // default
+        light.shadow.mapSize.height = 1024; // default
+        light.shadow.camera.near = 0.5; // default
+        light.shadow.camera.far = 1000; // default
+
+        scene.add(light);
+        scene.add(light.target);
+
+        const helper = new THREE.DirectionalLightHelper(light);
+        scene.add(helper);
+
+        const onChange = () => {
+            light.target.updateMatrixWorld();
+            helper.update();
+        };
+        onChange();
+
+        const gui = new GUI();
+        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
+        gui.add(light, 'intensity', 0, 2, 0.01);
+
+        makeXYZGUI(gui, light.position, 'position', onChange);
+        makeXYZGUI(gui, light.target.position, 'target', onChange);
+        //////////////////////////////////////////////////////////// 
+        ////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////
+        // spotLight  ///////////////////////////////////////
+        /*const spotLight = new THREE.SpotLight( 0xffffff );
+        spotLight.position.set( 10, 10, -10 );        
+        spotLight.target.position.set(0, 0, 0); 
+        spotLight.castShadow = true;
+        scene.add( spotLight );
+        scene.add(spotLight.target);
+        const helper = new THREE.DirectionalLightHelper(spotLight);
+        scene.add(helper);
+
+        function updateLight() {
+            spotLight.target.updateMatrixWorld();
+            helper.update();
+        }
+        updateLight();        
+        // gui
+        const gui = new GUI();
+        gui.addColor(new ColorGUIHelper(spotLight, 'color'), 'value').name('color');
+        gui.add(spotLight, 'intensity', 0, 2, 0.01);
+        gui.add(spotLight, 'distance', 0, 40).onChange(updateLight);
+        gui.add(new DegRadHelper(spotLight, 'angle'), 'value', 0, 90).name('angle').onChange(updateLight);
+        gui.add(spotLight, 'penumbra', 0, 1, 0.01);
+
+        makeXYZGUI(gui, spotLight.position, 'position', updateLight);
+        makeXYZGUI(gui, spotLight.target.position, 'target', updateLight);  */
+        //////////////////////////////////////////////////////////// 
+        ////////////////////////////////////////////////////////////
+
+        
+        // renderer //////////////////////////////////////////////////
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMap.type = THREE.PCFShadowMap; 
+        renderer.render( scene, camera );
+        
+        // OrbitControls /////////////////////////////////////////////
+        var controls = new OrbitControls( camera, renderer.domElement );
+        
+        // axes ///////////////////////////////////////////////////////
+        const axesHelper = new THREE.AxesHelper( 15 );
+        scene.add( axesHelper );
+                
+        // animation //////////////////////////////////////////////////
+        var animate = function(){
+            requestAnimationFrame(animate);
+            renderer.render( scene, camera );
+        }
+        animate();
+
+        // redimensioar  /////////////////////////////////////////////
+        window.addEventListener('resize', redimensionar);
+        function redimensionar(){
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.render( scene, camera );
+        }
+    </script>    
+
+</body>
+</html>

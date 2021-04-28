@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="three.min.js"> </script> 
+    <script src="OrbitControls.js"> </script> 
+
+    <script>    
+
+        var scene = new THREE.Scene();
+        //scene.background = new THREE.Color(0x008800);
+        
+        var camera = new THREE.PerspectiveCamera(
+            75, // angulo
+            window.innerWidth/window.innerHeight, // aspect, es lo que ve la camara
+            0.1, // near
+            2000 // far
+        );        
+        camera.position.z = 10;
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+
+        var geometry = new THREE.BoxGeometry(2,2,2,3,3,3);        
+        var material = new THREE.MeshBasicMaterial( {color:0x00ff00, wireframe: true} );
+        var cube = new THREE.Mesh( geometry, material );                
+
+        var circle = new THREE.Mesh( new THREE.CircleGeometry(1, 50, 0, Math.PI), material ); 
+        circle.position.x = 5;
+
+        var cono = new THREE.Mesh( new THREE.ConeGeometry(1, 1, 32, 5, true, 0, Math.PI), material ); 
+        cono.position.x = -5;
+
+        var cono2 = new THREE.Mesh( new THREE.ConeGeometry(1, 2, 32, 5), material ); 
+        cono2.position.y = -3;
+
+        var cylinder = new THREE.Mesh( new THREE.CylinderGeometry(1, 1, 2, 32), material ); 
+        cylinder.position.y = 3;
+
+        var plane = new THREE.Mesh( new THREE.PlaneGeometry(2, 2, 5, 4), material ); 
+        plane.position.y = 3;
+        plane.position.x = 5;
+
+        var tetrahedro = new THREE.Mesh( new THREE.TetrahedronGeometry(1), material ); 
+        tetrahedro.position.y = -3;
+        tetrahedro.position.x = -5;
+
+        var sphere = new THREE.Mesh( new THREE.SphereGeometry(1, 32, 32), material ); 
+        sphere.position.y = 3;
+        sphere.position.x = -5;
+
+        var torus = new THREE.Mesh( new THREE.TorusGeometry(1, 0.5, 32, 32), material ); 
+        torus.position.y = -3;
+        torus.position.x = 5;
+
+        const axesHelper = new THREE.AxesHelper( 15 );
+        scene.add( axesHelper );
+
+        scene.add(cube);
+        scene.add(circle);
+        scene.add(cono);
+        scene.add(cono2);
+        scene.add(cylinder);
+        scene.add(plane);
+        scene.add(tetrahedro);
+        scene.add(sphere);
+        scene.add(torus);
+
+        
+        //renderer.render( scene, camera );
+        renderer.render( scene, camera );
+
+        // para los controles del mouse
+        var controls = new THREE.OrbitControls( camera, renderer.domElement );
+        controls.minDistance = 3; // minima distancia a q puede hacer zoom
+        controls.maxDistance = 10; // maxima distancia a q puede hacer zoom
+       
+        // para que el renderer se actualize al redimensionar el navegador
+        window.addEventListener('resize', redimensionar);
+        function redimensionar(){
+            // actualizamos las vcariables que dependen del tamanio delñ navegador
+            camera.aspect = window.innerWidth/window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.render( scene, camera );
+        }
+
+        var animate = function(){
+            requestAnimationFrame(animate);            
+
+            // para recorrer cada objeto de la scena (tambien incluye la camara)
+            scene.traverse(function(object){
+                if (object.isMesh == true){ // para evitar rotar la camara
+                    object.rotation.x += 0.01;
+                    //object.rotation.y += 0.01;
+                }
+            });
+
+            //circle.rotation 
+            renderer.render( scene, camera );
+        }
+
+        animate();
+    </script>    
+
+</body>
+</html>
