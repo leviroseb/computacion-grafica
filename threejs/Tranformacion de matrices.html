@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <script src="three.min.js"> </script> 
+
+    <script>
+        // mesh ////////////////////////////////////////////////////        
+        var geometry = new THREE.BoxGeometry();
+        var material = new THREE.MeshBasicMaterial( {color:0x780000} );
+        //var material = new THREE.MeshBasicMaterial( {color:0x780000, wireframe: true} );
+        var cube = new THREE.Mesh( geometry, material );
+        
+        //1
+        const traslation=new THREE.Matrix4();
+        traslation.set(
+            1,0,0,0.01,
+            0,1,0,0,
+            0,0,1,0,
+            0,0,0,1
+        );
+
+
+        //2
+        const traslation2=new THREE.Matrix4();
+        traslation2.set(
+            1,0,0,0.01,
+            0,1,0,0,
+            0,0,1,0.02,
+            0,0,0,1
+        );
+
+        //3
+        const scale=new THREE.Matrix4();
+        scale.set(
+            1,0,0,0,
+            0,1.001,0,0,
+            0,0,1,0,
+            0,0,0,1
+        );
+
+
+        //4
+        const scale2=new THREE.Matrix4();
+        scale2.set(
+            1.001,0,0,0,
+            0,1.001,0,0,
+            0,0,1.001,0,
+            0,0,0,1
+        );
+
+
+        //5
+        const rotate=new THREE.Matrix4();
+        var tetha=0.01;
+        rotate.set(
+            Math.cos(tetha),-Math.sin(tetha),0,0,
+            Math.sin(tetha),Math.cos(tetha),0,0,
+            0,0,1,0,
+            0,0,0,1
+        );
+
+
+        //6
+        const rotatex=new THREE.Matrix4();
+        var tetha1=0.02
+        rotatex.set(
+            1,0,0,0,
+            0,Math.cos(tetha1),-Math.sin(tetha1),0,
+            0,Math.sin(tetha1),Math.cos(tetha1),0,
+            0,0,0,1
+        );
+
+        new_rotation=rotate.multiply(rotatex);
+
+//////////////////////////
+        //7
+        const traslationx=new THREE.Matrix4();
+        traslationx.set(
+            1,0,0,0.02,
+            0,1,0,0,
+            0,0,1,0,
+            0,0,0,1
+        );
+
+        const scaleall=new THREE.Matrix4();
+        scaleall.set(
+            1.002,0,0,0,
+            0,1.002,0,0,
+            0,0,1.002,0,
+            0,0,0,1
+        );
+
+        const rotatex2=new THREE.Matrix4();
+        var tetha2=0.01
+        rotatex2.set(
+            1,0,0,0,
+            0,Math.cos(tetha2),-Math.sin(tetha2),0,
+            0,Math.sin(tetha2),Math.cos(tetha2),0,
+            0,0,0,1
+        );
+
+        const rotatey=new THREE.Matrix4();
+        var tetha3=0.01
+        rotatey.set(
+            Math.cos(tetha3),0,Math.sin(tetha3),0,
+            0,1,0,0,
+            -Math.sin(tetha3),0,Math.cos(tetha3),0,
+            0,0,0,1
+        );
+
+        multi1=traslationx.multiply(scaleall);
+        multi2=multi1.multiply(rotatex2);
+        multi3=multi2.multiply(rotatey);
+
+        
+
+
+
+        
+        // camera //////////////////////////////////////////////////
+        var camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth/window.innerHeight
+        );
+        camera.position.z = 5;
+
+        // scene //////////////////////////////////////////////////
+        var scene = new THREE.Scene();
+        scene.backgroundColor = new THREE.Color(0x000000);
+        scene.add(cube);        
+
+        // renderer //////////////////////////////////////////////////
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        renderer.render( scene, camera );
+        
+        // animation //////////////////////////////////////////////////
+        var animate = function(){
+            requestAnimationFrame(animate);
+            cube.geometry.applyMatrix4(multi3);
+            renderer.render( scene, camera );
+        }
+        animate();
+    </script>    
+
+</body>
+</html>
