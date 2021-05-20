@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script type='module'>  
+        import * as THREE from 'https://cdn.skypack.dev/three';
+               
+        var sol = new THREE.Mesh( new THREE.BoxGeometry( 5, 5, 5 ), new THREE.MeshPhongMaterial( {color:0xFCFF33}) );
+        var tierra = new THREE.Mesh( new THREE.BoxGeometry( 4, 4, 4 ), new THREE.MeshPhongMaterial( {color:0x8E5229}) );
+        var luna = new THREE.Mesh( new THREE.BoxGeometry( 2, 2, 2 ), new THREE.MeshPhongMaterial( {color:0x51CEDF}) );
+        tierra.position.x = 20
+        luna.position.x = 25
+
+        /////////Matrices de transformación Examen/////////////////////
+
+        distancia_sol_tierra=20;
+        distancia_tierra_luna=5;
+        radio_tierra=2;
+        tetha=0.01;
+        const traslation_tierra=new THREE.Matrix4();
+        traslation_tierra.set(
+            1,0,0,distancia_sol_tierra*MATH.cos(tetha),
+            0,1,0,0,
+            0,0,1,distancia_sol_tierra*MATH.sin(TETHA),
+            0,0,0,1
+        );
+
+        const rotation_tierra=new THREE.Matrix4();
+        rotation_tierra.set(
+            MATH.cos(tetha),0,MATH.sin(tetha),0,
+            0,1,0,0,
+            -MATH.sin(tetha),0,MATH.cos(tetha),0,
+            0,0,0,1
+        );
+
+        const traslation_luna=new THREE.Matrix4();
+        traslation_luna.set(
+            1,0,0,distancia_tierra_luna*MATH.cos(tetha),
+            0,1,0,0,
+            0,0,1,distancia_tierra_luna*MATH.sin(TETHA),
+            0,0,0,1
+        );
+
+        const rotation_luna=new THREE.Matrix(4);
+        rotation_luna.set(
+            MATH.cos(tetha),0,MATH.sin(tetha),0,
+            0,1,0,0,
+            -MATH.sin(tetha),0,MATH.cos(tetha),0,
+            0,0,0,1
+        );
+
+        const mov_tierra=traslation_tierra.multiply(rotation_tierra);
+        const mov_luna=traslation_luna.multiply(rotation_luna);
+
+
+        /////////////////////////////////////////////////////////////////////////////////////////////
+                
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight,1,500);
+        camera.position.z = 100;
+        camera.position.y = 10;      
+      
+        var scene = new THREE.Scene();
+        scene.backgroundColor = new THREE.Color(0xffffff);
+        scene.add(sol);     
+        scene.add(tierra);   
+        scene.add(luna);   
+
+        const light = new THREE.HemisphereLight(0xB1E1FF, 0x000000, 1);
+        scene.add(light);
+        
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+       
+        // Defina aqui las matrices de transofmracion
+        ////////////////////////////////////////////////////////////////
+        
+        ////////////////////////////////////////////////////////////////
+
+        var animate = function(){
+            requestAnimationFrame(animate);   
+            tierra.geometry.applyMatrix4(mov_tierra);
+            luna.geometry.applyMatrix4(mov_luna);
+              
+            renderer.render( scene, camera );
+        }
+        animate();
+    </script>    
+
+</body>
